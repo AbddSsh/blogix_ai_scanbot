@@ -39,6 +39,35 @@ docker compose up -d --build
 
 Остановка: `docker compose down`. Перезапуск: `docker compose restart`.
 
+## Деплой на сервер
+
+Сервер работает с той же версией, что и `main` в GitHub — код берётся только через git,
+никаких архивов и ручного копирования файлов.
+
+Первая установка:
+
+```bash
+ssh blogix@<адрес-сервера>
+git clone https://github.com/AbddSsh/blogix_ai_scanbot.git
+cd blogix_ai_scanbot
+cp .env.example .env && nano .env    # вписать BOT_TOKEN и ANTHROPIC_API_KEY
+chmod 600 .env
+docker compose up -d --build
+```
+
+Обновление после изменений в коде — одна команда на сервере:
+
+```bash
+cd ~/blogix_ai_scanbot && ./deploy.sh
+```
+
+Скрипт подтягивает `main`, пересобирает образ, перезапускает контейнер и показывает статус с
+логами. `.env` лежит только на сервере и в git не попадает, поэтому `git pull` его не трогает.
+
+**Важно:** бот должен работать в одном экземпляре. Telegram отдаёт обновления только одному
+получателю, поэтому перед запуском на сервере остановите локальный контейнер
+(`docker compose down`), иначе оба получат ошибку `Conflict`.
+
 ## Локальный запуск без Docker
 
 ```bash
